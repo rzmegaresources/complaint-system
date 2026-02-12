@@ -45,3 +45,5 @@ setup-folders.js
 
 # prisma generated
 prisma/generated/
+
+/src/generated/prisma

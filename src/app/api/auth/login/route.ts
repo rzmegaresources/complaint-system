@@ -48,8 +48,8 @@ export async function POST(req: Request) {
     }
 
     // Return user info (excluding password)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _password, ...safeUser } = user;
+    // Return user info (excluding password)
+    const { password: _password, ...safeUser } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
     return NextResponse.json(safeUser);
   } catch (error) {
     console.error("[AUTH_LOGIN]", error);

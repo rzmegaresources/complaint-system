@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "FYP Complaint System | AI-Powered Complaint Management",
+  title: "VoiceBox | AI-Powered Complaint Management",
   description:
     "An intelligent complaint management system powered by Gemini AI with real-time tracking, RAG-based solutions, and analytics.",
 };

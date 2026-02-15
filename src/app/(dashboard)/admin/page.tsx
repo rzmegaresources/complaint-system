@@ -13,6 +13,8 @@ import {
   Flame,
   Meh,
   SmilePlus,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -36,40 +38,44 @@ interface TicketData {
   };
 }
 
-const priorityConfig: Record<string, { color: string; bg: string; icon: React.ReactNode }> = {
+const priorityConfig: Record<string, { color: string; bg: string; icon: React.ReactNode; gradient: string }> = {
   CRITICAL: {
     color: "text-red-700",
     bg: "bg-red-100 border-red-200",
     icon: <AlertTriangle className="w-3.5 h-3.5" />,
+    gradient: "from-red-500 to-rose-600",
   },
   HIGH: {
     color: "text-orange-700",
     bg: "bg-orange-100 border-orange-200",
     icon: <Flame className="w-3.5 h-3.5" />,
+    gradient: "from-orange-500 to-amber-600",
   },
   MEDIUM: {
     color: "text-yellow-700",
     bg: "bg-yellow-100 border-yellow-200",
     icon: <Clock className="w-3.5 h-3.5" />,
+    gradient: "from-yellow-500 to-orange-500",
   },
   LOW: {
-    color: "text-green-700",
-    bg: "bg-green-100 border-green-200",
+    color: "text-emerald-700",
+    bg: "bg-emerald-100 border-emerald-200",
     icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+    gradient: "from-emerald-500 to-teal-500",
   },
 };
 
-const statusConfig: Record<string, { color: string; bg: string }> = {
-  OPEN: { color: "text-blue-700", bg: "bg-blue-100" },
-  IN_PROGRESS: { color: "text-purple-700", bg: "bg-purple-100" },
-  RESOLVED: { color: "text-green-700", bg: "bg-green-100" },
-  REJECTED: { color: "text-red-700", bg: "bg-red-100" },
+const statusConfig: Record<string, { color: string; bg: string; dot: string }> = {
+  OPEN: { color: "text-blue-700", bg: "bg-blue-100/80", dot: "bg-blue-500" },
+  IN_PROGRESS: { color: "text-purple-700", bg: "bg-purple-100/80", dot: "bg-purple-500" },
+  RESOLVED: { color: "text-emerald-700", bg: "bg-emerald-100/80", dot: "bg-emerald-500" },
+  REJECTED: { color: "text-red-700", bg: "bg-red-100/80", dot: "bg-red-500" },
 };
 
 const sentimentConfig: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
-  ANGRY: { icon: <XCircle className="w-3.5 h-3.5" />, label: "Angry", color: "text-red-500 bg-red-50" },
-  NEUTRAL: { icon: <Meh className="w-3.5 h-3.5" />, label: "Neutral", color: "text-slate-500 bg-slate-50" },
-  CALM: { icon: <SmilePlus className="w-3.5 h-3.5" />, label: "Calm", color: "text-green-500 bg-green-50" },
+  ANGRY: { icon: <XCircle className="w-3.5 h-3.5" />, label: "Angry", color: "text-red-600 bg-red-50 border-red-100" },
+  NEUTRAL: { icon: <Meh className="w-3.5 h-3.5" />, label: "Neutral", color: "text-slate-600 bg-slate-50 border-slate-100" },
+  CALM: { icon: <SmilePlus className="w-3.5 h-3.5" />, label: "Calm", color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
 };
 
 export default function AdminDashboard() {
@@ -97,7 +103,6 @@ export default function AdminDashboard() {
       ? tickets
       : tickets.filter((t) => t.priority === filter);
 
-  // Stats
   const stats = {
     total: tickets.length,
     critical: tickets.filter((t) => t.priority === "CRITICAL").length,
@@ -108,7 +113,10 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+          <p className="text-sm text-slate-500">Loading tickets...</p>
+        </div>
       </div>
     );
   }
@@ -116,42 +124,78 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Overview of all complaints with AI-powered analysis
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+            Admin Dashboard
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 rounded-full text-xs font-semibold border border-indigo-200">
+              <Sparkles className="w-3 h-3" />
+              AI Powered
+            </span>
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            VoiceBox Complaint Management — Overview of all complaints
+          </p>
+        </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stat Cards - Vibrant Gradient */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Tickets" value={stats.total} icon={<Ticket className="w-5 h-5 text-blue-500" />} bg="bg-blue-50" />
-        <StatCard label="Critical" value={stats.critical} icon={<AlertTriangle className="w-5 h-5 text-red-500" />} bg="bg-red-50" />
-        <StatCard label="Open" value={stats.open} icon={<Clock className="w-5 h-5 text-yellow-500" />} bg="bg-yellow-50" />
-        <StatCard label="Resolved" value={stats.resolved} icon={<CheckCircle2 className="w-5 h-5 text-green-500" />} bg="bg-green-50" />
+        <GradientStatCard
+          label="Total Tickets"
+          value={stats.total}
+          icon={<Ticket className="w-6 h-6" />}
+          gradient="stat-card-blue"
+          trend="+12%"
+        />
+        <GradientStatCard
+          label="Critical"
+          value={stats.critical}
+          icon={<AlertTriangle className="w-6 h-6" />}
+          gradient="stat-card-red"
+        />
+        <GradientStatCard
+          label="Open"
+          value={stats.open}
+          icon={<Clock className="w-6 h-6" />}
+          gradient="stat-card-amber"
+        />
+        <GradientStatCard
+          label="Resolved"
+          value={stats.resolved}
+          icon={<CheckCircle2 className="w-6 h-6" />}
+          gradient="stat-card-emerald"
+          trend="✓"
+        />
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"].map((level) => (
+      <div className="flex items-center gap-2 flex-wrap bg-white/60 backdrop-blur-sm p-2 rounded-2xl border border-slate-200/50">
+        {[
+          { key: "ALL", label: "All", color: "from-indigo-500 to-purple-600" },
+          { key: "CRITICAL", label: "Critical", color: "from-red-500 to-rose-600" },
+          { key: "HIGH", label: "High", color: "from-orange-500 to-amber-600" },
+          { key: "MEDIUM", label: "Medium", color: "from-yellow-500 to-orange-500" },
+          { key: "LOW", label: "Low", color: "from-emerald-500 to-teal-600" },
+        ].map((level) => (
           <button
-            key={level}
-            onClick={() => setFilter(level)}
+            key={level.key}
+            onClick={() => setFilter(level.key)}
             className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all border",
-              filter === level
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+              "px-4 py-2 rounded-xl text-xs font-semibold transition-all",
+              filter === level.key
+                ? `bg-gradient-to-r ${level.color} text-white shadow-lg`
+                : "bg-transparent text-slate-600 hover:bg-white hover:shadow-sm"
             )}
           >
-            {level}
+            {level.label}
           </button>
         ))}
       </div>
 
       {/* Ticket Cards Grid */}
       {filteredTickets.length === 0 ? (
-        <div className="text-center py-16 text-slate-400">
+        <div className="text-center py-16 text-slate-400 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/50">
           <Ticket className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p className="text-lg font-medium">No tickets found</p>
           <p className="text-sm">Tickets will appear here once users submit complaints.</p>
@@ -168,8 +212,11 @@ export default function AdminDashboard() {
             return (
               <div
                 key={ticket.id}
-                className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow"
+                className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200/60 transition-all duration-300 hover:-translate-y-0.5"
               >
+                {/* Gradient top accent bar */}
+                <div className={cn("h-1 w-full rounded-full bg-gradient-to-r mb-4", priority.gradient)} />
+
                 {/* Top Row: Priority + Status */}
                 <div className="flex items-center justify-between mb-3">
                   <span
@@ -184,17 +231,18 @@ export default function AdminDashboard() {
                   </span>
                   <span
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-xs font-medium",
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
                       status.bg,
                       status.color
                     )}
                   >
+                    <span className={cn("w-1.5 h-1.5 rounded-full", status.dot)} />
                     {ticket.status.replace("_", " ")}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="text-sm font-semibold text-slate-900 mb-1 line-clamp-1">
+                <h3 className="text-sm font-bold text-slate-900 mb-1 line-clamp-1 group-hover:text-indigo-700 transition-colors">
                   {ticket.title}
                 </h3>
                 <p className="text-xs text-slate-500 line-clamp-2 mb-4">
@@ -204,14 +252,14 @@ export default function AdminDashboard() {
                 {/* AI Badges */}
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                   {ticket.aiAnalysis?.category && (
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-xs font-medium">
-                      {ticket.aiAnalysis.category}
+                    <span className="px-2.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-medium border border-indigo-100">
+                      🏷 {ticket.aiAnalysis.category}
                     </span>
                   )}
                   {sentiment && (
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium",
+                        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-xs font-medium border",
                         sentiment.color
                       )}
                     >
@@ -230,8 +278,8 @@ export default function AdminDashboard() {
                     · {new Date(ticket.createdAt).toLocaleDateString()}
                   </div>
                   <Link
-                    href={`/(dashboard)/admin/tickets/${ticket.id}`}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+                    href={`/admin/tickets/${ticket.id}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     View
@@ -246,24 +294,38 @@ export default function AdminDashboard() {
   );
 }
 
-// Stat card sub-component
-function StatCard({
+// Gradient stat card sub-component
+function GradientStatCard({
   label,
   value,
   icon,
-  bg,
+  gradient,
+  trend,
 }: {
   label: string;
   value: number;
   icon: React.ReactNode;
-  bg: string;
+  gradient: string;
+  trend?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4">
-      <div className={cn("p-3 rounded-xl", bg)}>{icon}</div>
-      <div>
-        <p className="text-2xl font-bold text-slate-900">{value}</p>
-        <p className="text-xs text-slate-500">{label}</p>
+    <div className={cn("rounded-2xl p-5 text-white relative overflow-hidden shadow-lg", gradient)}>
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-6 -translate-x-6" />
+
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-3">
+          <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">{icon}</div>
+          {trend && (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+              <TrendingUp className="w-3 h-3" />
+              {trend}
+            </span>
+          )}
+        </div>
+        <p className="text-3xl font-bold">{value}</p>
+        <p className="text-sm font-medium text-white/80">{label}</p>
       </div>
     </div>
   );

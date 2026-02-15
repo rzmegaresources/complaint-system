@@ -2,26 +2,19 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
-import { useState } from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarCollapsed] = useState(false);
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div
-        className={`transition-all duration-300 ${
-          sidebarCollapsed ? "ml-[70px]" : "ml-[260px]"
-        }`}
-      >
+      <div className="transition-all duration-300 ml-[260px]">
         {/* Top Navbar */}
         <Navbar />
 

@@ -21,6 +21,7 @@ enum Role {
   ADMIN
   USER
   STAFF
+  HR
 }
 
 enum Status {
@@ -43,6 +44,8 @@ enum Priority {
 
 model User {
   id        Int       @id @default(autoincrement())
+  loginId   String    @unique           // Alphanumeric login ID (e.g. JD01, HR01, AD01)
+  password  String    @default("123456") // Plain text for demo purposes
   email     String    @unique
   name      String
   role      Role      @default(USER)
@@ -64,6 +67,9 @@ model Ticket {
   priority    Priority  @default(MEDIUM)
   category    String?
   location    String?
+  imageUrl    String?   // Path to uploaded complaint image
+  latitude    Float?    // Map pin latitude
+  longitude   Float?    // Map pin longitude
   aiAnalysis  Json?     // Stores AI-generated tags, sentiment, category suggestions
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

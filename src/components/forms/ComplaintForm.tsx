@@ -4,9 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { Send, Loader2, ImagePlus, X, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import Image from "next/image";
 
 // Zod validation schema
 const complaintSchema = z.object({
@@ -36,6 +37,18 @@ const categories = [
 
 export default function ComplaintForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [LocationPicker, setLocationPicker] = useState<React.ComponentType<{
+    latitude: number | null;
+    longitude: number | null;
+    onLocationChange: (lat: number, lng: number) => void;
+  }> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -52,21 +65,90 @@ export default function ComplaintForm() {
     },
   });
 
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleLocationChange = useCallback((lat: number, lng: number) => {
+    setLatitude(lat);
+    setLongitude(lng);
+  }, []);
+
+  // Lazy-load the map component
+  const toggleMap = async () => {
+    if (!showMap && !LocationPicker) {
+      const mod = await import("@/components/maps/LocationPicker");
+      setLocationPicker(() => mod.default);
+    }
+    setShowMap(!showMap);
+  };
+
   const onSubmit = async (data: ComplaintFormData) => {
     setIsSubmitting(true);
 
     try {
+      // Upload image first if present
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json();
+          throw new Error(err.error || "Image upload failed");
+        }
+        const uploadData = await uploadRes.json();
+        imageUrl = uploadData.url;
+        setUploading(false);
+      }
+
+      // Get the logged-in user's ID from localStorage
+      let userId = 1;
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const user = JSON.parse(stored);
+          if (user.id) userId = user.id;
+        }
+      } catch {}
+
       const response = await fetch("/api/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          userId: 1, // TODO: Replace with actual user ID from auth
+          userId,
+          imageUrl,
+          latitude,
+          longitude,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit complaint");
+        const errData = await response.json().catch(() => null);
+        throw new Error(errData?.error || "Failed to submit complaint");
       }
 
       const ticket = await response.json();
@@ -76,13 +158,21 @@ export default function ComplaintForm() {
       });
 
       reset();
+      removeImage();
+      setLatitude(null);
+      setLongitude(null);
+      setShowMap(false);
     } catch (error) {
       console.error("[COMPLAINT_FORM]", error);
       toast.error("Submission Failed", {
-        description: "Something went wrong. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
+      setUploading(false);
     }
   };
 
@@ -166,7 +256,7 @@ export default function ComplaintForm() {
       </div>
 
       {/* Description */}
-      <div className="mb-8">
+      <div className="mb-5">
         <label className="block text-sm font-medium text-slate-700 mb-1.5">
           Description <span className="text-red-500">*</span>
         </label>
@@ -189,18 +279,101 @@ export default function ComplaintForm() {
         )}
       </div>
 
+      {/* Image Upload */}
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          📷 Attach Photo <span className="text-slate-400">(Optional)</span>
+        </label>
+
+        {imagePreview ? (
+          <div className="relative group w-fit">
+            <Image
+              src={imagePreview}
+              alt="Complaint preview"
+              width={400}
+              height={300}
+              className="rounded-xl border border-slate-200 object-cover max-h-[200px] w-auto"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center gap-2 text-slate-400 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50/50 transition-all"
+          >
+            <ImagePlus className="w-8 h-8" />
+            <span className="text-sm font-medium">
+              Click to upload an image
+            </span>
+            <span className="text-xs">JPEG, PNG, WebP (max 5MB)</span>
+          </button>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </div>
+
+      {/* Map Location Pin */}
+      <div className="mb-8">
+        <button
+          type="button"
+          onClick={toggleMap}
+          className={cn(
+            "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border",
+            showMap
+              ? "bg-blue-50 border-blue-200 text-blue-700"
+              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600"
+          )}
+        >
+          <MapPin className="w-4 h-4" />
+          {showMap ? "Hide Map" : "📍 Pin Location on Map"}
+          {latitude && longitude && (
+            <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+              ✓ Pinned
+            </span>
+          )}
+        </button>
+
+        {showMap && LocationPicker && (
+          <div className="mt-3">
+            <LocationPicker
+              latitude={latitude}
+              longitude={longitude}
+              onLocationChange={handleLocationChange}
+            />
+          </div>
+        )}
+      </div>
+
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || uploading}
         className={cn(
           "w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all",
-          isSubmitting
+          isSubmitting || uploading
             ? "bg-blue-400 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700 active:scale-[0.98] shadow-lg shadow-blue-500/25"
         )}
       >
-        {isSubmitting ? (
+        {uploading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Uploading image...
+          </>
+        ) : isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
             AI is analyzing your complaint...

@@ -1,77 +1,80 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Bell, ChevronDown, LogOut, User, Settings } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
+import { Bell, Search, User, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userName, setUserName] = useState("User");
+  const [userEmail, setUserEmail] = useState("");
+  const [userLoginId, setUserLoginId] = useState("");
 
-  // Close dropdown on outside click
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const user = JSON.parse(stored);
+        if (user.name) setUserName(user.name);
+        if (user.email) setUserEmail(user.email);
+        if (user.loginId) setUserLoginId(user.loginId);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    } catch {}
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-6 bg-white/80 backdrop-blur-md border-b border-slate-200">
-      {/* Left: Page Title */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">Dashboard</h2>
-        <p className="text-xs text-slate-500">
-          Welcome back! Here&apos;s what&apos;s happening.
-        </p>
+    <header className="sticky top-0 z-30 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200/60 h-16 flex items-center justify-between px-6">
+      {/* Left: Search */}
+      <div className="flex items-center gap-3 bg-slate-100/80 px-4 py-2.5 rounded-xl w-64 md:w-96 transition-all focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:bg-white border border-transparent focus-within:border-indigo-200">
+        <Search className="w-4 h-4 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search tickets, documents..."
+          className="bg-transparent border-none outline-none text-sm text-slate-700 w-full placeholder:text-slate-400"
+        />
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* AI Status Badge */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-full border border-indigo-100">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          <span className="text-xs font-semibold text-indigo-600">AI Active</span>
+          <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+        </div>
+
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+        <button className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 hover:text-indigo-600">
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full border-2 border-white" />
         </button>
 
-        {/* User Dropdown */}
-        <div ref={dropdownRef} className="relative">
+        {/* Profile Dropdown */}
+        <div className="relative">
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 p-1.5 pr-3 rounded-lg hover:bg-slate-100 transition-colors"
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
-              A
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+              <User className="w-4 h-4" />
             </div>
-            <span className="text-sm font-medium text-slate-700">Admin</span>
-            <ChevronDown
-              className={cn(
-                "w-4 h-4 text-slate-400 transition-transform",
-                dropdownOpen && "rotate-180"
-              )}
-            />
+            <span className="text-sm font-semibold text-slate-700 hidden md:block">
+              {userName}
+            </span>
           </button>
 
-          {/* Dropdown Menu */}
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                <User className="w-4 h-4 text-slate-400" />
-                My Profile
+          {showProfileMenu && (
+            <div
+              className="absolute right-0 mt-3 w-56 bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2"
+              onClick={() => setShowProfileMenu(false)}
+            >
+              <div className="px-4 py-3 border-b border-slate-100 mb-1">
+                <p className="text-sm font-bold text-slate-900">{userName}</p>
+                <p className="text-xs text-slate-500">{userEmail || userLoginId}</p>
+              </div>
+              <button className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                Profile Settings
               </button>
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                <Settings className="w-4 h-4 text-slate-400" />
-                Settings
-              </button>
-              <hr className="my-1 border-slate-100" />
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                <LogOut className="w-4 h-4" />
+              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
                 Sign Out
               </button>
             </div>

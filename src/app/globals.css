@@ -3,29 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
+  --background: #f0f2f5;
   --foreground: #0f172a;
   --sidebar-bg: #0f172a;
   --sidebar-text: #94a3b8;
-  --sidebar-active: #3b82f6;
+  --sidebar-active: #6366f1;
   --card-bg: #ffffff;
   --border: #e2e8f0;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
   --danger: #ef4444;
-  --success: #22c55e;
+  --success: #10b981;
   --warning: #f59e0b;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #e2e8f0;
-    --sidebar-bg: #020617;
-    --card-bg: #1e293b;
-    --border: #334155;
-  }
-}
+
 
 * {
   box-sizing: border-box;
@@ -41,6 +34,69 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
+}
+
+/* Force all form elements to use dark text on light backgrounds */
+input, select, textarea, option {
+  color: #1e293b;
+  background-color: #f8fafc;
+}
+
+option {
+  color: #1e293b;
+  background-color: #ffffff;
+}
+
+/* Animated gradient background for dashboard */
+.dashboard-bg {
+  background: linear-gradient(135deg, #f0f2f5 0%, #e8eaf6 30%, #f3e5f5 60%, #e8f5e9 100%);
+  min-height: 100vh;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Vibrant stat card gradients */
+.stat-card-blue {
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+}
+.stat-card-red {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+.stat-card-amber {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+}
+.stat-card-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+.stat-card-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulse-ring 1.5s ease-out infinite;
 }
 
 /* Custom scrollbar */

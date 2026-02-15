@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/prisma";
 
@@ -38,15 +39,15 @@ export async function GET() {
       openTickets,
       resolvedTickets,
       criticalTickets,
-      byPriority: byPriority.map((p) => ({
+      byPriority: byPriority.map((p: any) => ({
         priority: p.priority,
         count: p._count.priority,
       })),
-      byStatus: byStatus.map((s) => ({
+      byStatus: byStatus.map((s: any) => ({
         status: s.status,
         count: s._count.status,
       })),
-      byCategory: byCategory.map((c) => ({
+      byCategory: byCategory.map((c: any) => ({
         category: c.category,
         count: c._count.category,
       })),

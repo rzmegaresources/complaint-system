@@ -62,7 +62,7 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-6 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
+      style={{ backgroundImage: "url('/images/bg01.jpg')" }}
     >
       <div className="w-full max-w-md">
         {/* Logo Area */}
@@ -147,41 +147,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 pt-5 border-t border-white/10">
-            <p className="text-xs text-slate-400 text-center mb-3">
-              Demo Credentials (password: 123456)
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => {
-                  setLoginId("AD01");
-                  setPassword("123456");
-                }}
-                className="text-xs bg-white/5 border border-white/10 text-slate-300 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                👑 AD01
-              </button>
-              <button
-                onClick={() => {
-                  setLoginId("JD01");
-                  setPassword("123456");
-                }}
-                className="text-xs bg-white/5 border border-white/10 text-slate-300 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                👤 JD01
-              </button>
-              <button
-                onClick={() => {
-                  setLoginId("HR01");
-                  setPassword("123456");
-                }}
-                className="text-xs bg-white/5 border border-white/10 text-slate-300 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                🧑‍💼 HR01
-              </button>
-            </div>
-          </div>
+
 
 
         </div>

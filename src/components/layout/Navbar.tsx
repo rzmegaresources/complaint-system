@@ -21,6 +21,11 @@ export default function Navbar() {
     } catch {}
   }, []);
 
+  const handleSignOut = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
   return (
     <header className="sticky top-0 z-30 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200/60 h-16 flex items-center justify-between px-6">
       {/* Left: Search */}
@@ -74,7 +79,10 @@ export default function Navbar() {
               <button className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                 Profile Settings
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+              <button
+                onClick={handleSignOut}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
                 Sign Out
               </button>
             </div>

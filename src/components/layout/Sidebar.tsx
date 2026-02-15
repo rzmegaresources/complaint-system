@@ -161,13 +161,16 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-white/10">
-        <Link
-          href="/login"
+        <button
+          onClick={() => {
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+          }}
           className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-500/15 hover:text-red-400 text-slate-400 transition-all group"
         >
           <LogOut className="w-5 h-5" />
           {!collapsed && <span className="font-medium text-sm">Sign Out</span>}
-        </Link>
+        </button>
       </div>
     </aside>
   );

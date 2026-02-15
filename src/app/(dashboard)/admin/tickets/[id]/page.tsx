@@ -311,13 +311,16 @@ export default function TicketDetailPage() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <img
+                  <Image
                     src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=250&center=lonlat:${ticket.longitude},${ticket.latitude}&zoom=15&marker=lonlat:${ticket.longitude},${ticket.latitude};color:%233b82f6;size:large&apiKey=demo`}
                     alt="Location map"
+                    width={600}
+                    height={250}
                     className="rounded-xl border border-slate-200 w-full hover:shadow-lg transition-shadow cursor-pointer"
                     onError={(e) => {
                       // Fallback if static map API fails
-                      (e.target as HTMLImageElement).style.display = 'none';
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
                     }}
                   />
                 </a>

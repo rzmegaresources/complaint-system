@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   Ticket,
@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { motion } from "framer-motion";
 
 interface TicketData {
   id: number;
@@ -78,6 +79,20 @@ const sentimentConfig: Record<string, { icon: React.ReactNode; label: string; co
   CALM: { icon: <SmilePlus className="w-3.5 h-3.5" />, label: "Calm", color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
 };
 
+// Stagger animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+} as const;
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+} as const;
+
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +139,12 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
             Admin Dashboard
@@ -137,40 +157,58 @@ export default function AdminDashboard() {
             VoiceBox Complaint Management — Overview of all complaints
           </p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Stat Cards - Vibrant Gradient */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <GradientStatCard
-          label="Total Tickets"
-          value={stats.total}
-          icon={<Ticket className="w-6 h-6" />}
-          gradient="stat-card-blue"
-          trend="+12%"
-        />
-        <GradientStatCard
-          label="Critical"
-          value={stats.critical}
-          icon={<AlertTriangle className="w-6 h-6" />}
-          gradient="stat-card-red"
-        />
-        <GradientStatCard
-          label="Open"
-          value={stats.open}
-          icon={<Clock className="w-6 h-6" />}
-          gradient="stat-card-amber"
-        />
-        <GradientStatCard
-          label="Resolved"
-          value={stats.resolved}
-          icon={<CheckCircle2 className="w-6 h-6" />}
-          gradient="stat-card-emerald"
-          trend="✓"
-        />
-      </div>
+      {/* Stat Cards - Staggered Animation */}
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={itemVariants}>
+          <GradientStatCard
+            label="Total Tickets"
+            value={stats.total}
+            icon={<Ticket className="w-6 h-6" />}
+            gradient="stat-card-blue"
+            trend="+12%"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <GradientStatCard
+            label="Critical"
+            value={stats.critical}
+            icon={<AlertTriangle className="w-6 h-6" />}
+            gradient="stat-card-red"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <GradientStatCard
+            label="Open"
+            value={stats.open}
+            icon={<Clock className="w-6 h-6" />}
+            gradient="stat-card-amber"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <GradientStatCard
+            label="Resolved"
+            value={stats.resolved}
+            icon={<CheckCircle2 className="w-6 h-6" />}
+            gradient="stat-card-emerald"
+            trend="✓"
+          />
+        </motion.div>
+      </motion.div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-2 flex-wrap bg-white/60 backdrop-blur-sm p-2 rounded-2xl border border-slate-200/50">
+      <motion.div
+        className="flex items-center gap-2 flex-wrap bg-white/60 backdrop-blur-sm p-2 rounded-2xl border border-slate-200/50"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         {[
           { key: "ALL", label: "All", color: "from-indigo-500 to-purple-600" },
           { key: "CRITICAL", label: "Critical", color: "from-red-500 to-rose-600" },
@@ -191,17 +229,26 @@ export default function AdminDashboard() {
             {level.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {/* Ticket Cards Grid */}
       {filteredTickets.length === 0 ? (
-        <div className="text-center py-16 text-slate-400 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/50">
+        <motion.div
+          className="text-center py-16 text-slate-400 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/50"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
           <Ticket className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p className="text-lg font-medium">No tickets found</p>
           <p className="text-sm">Tickets will appear here once users submit complaints.</p>
-        </div>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {filteredTickets.map((ticket) => {
             const priority = priorityConfig[ticket.priority] || priorityConfig.MEDIUM;
             const status = statusConfig[ticket.status] || statusConfig.OPEN;
@@ -210,9 +257,11 @@ export default function AdminDashboard() {
               : null;
 
             return (
-              <div
+              <motion.div
                 key={ticket.id}
-                className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200/60 transition-all duration-300 hover:-translate-y-0.5"
+                variants={itemVariants}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-5 hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-200/60 transition-all duration-300"
               >
                 {/* Gradient top accent bar */}
                 <div className={cn("h-1 w-full rounded-full bg-gradient-to-r mb-4", priority.gradient)} />
@@ -285,16 +334,51 @@ export default function AdminDashboard() {
                     View
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );
 }
 
-// Gradient stat card sub-component
+// Animated number counter hook
+function useAnimatedCounter(target: number, duration: number = 1200) {
+  const [count, setCount] = useState(0);
+  const startTime = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (target === 0) {
+      setCount(0);
+      return;
+    }
+
+    const animate = (timestamp: number) => {
+      if (!startTime.current) startTime.current = timestamp;
+      const progress = Math.min((timestamp - startTime.current) / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    startTime.current = null;
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration]);
+
+  return count;
+}
+
+// Gradient stat card sub-component with animated counter
 function GradientStatCard({
   label,
   value,
@@ -308,6 +392,8 @@ function GradientStatCard({
   gradient: string;
   trend?: string;
 }) {
+  const animatedValue = useAnimatedCounter(value);
+
   return (
     <div className={cn("rounded-2xl p-5 text-white relative overflow-hidden shadow-lg", gradient)}>
       {/* Background decoration */}
@@ -324,7 +410,7 @@ function GradientStatCard({
             </span>
           )}
         </div>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className="text-3xl font-bold tabular-nums">{animatedValue}</p>
         <p className="text-sm font-medium text-white/80">{label}</p>
       </div>
     </div>

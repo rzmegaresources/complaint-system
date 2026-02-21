@@ -13,6 +13,10 @@ import {
   Menu,
   ChevronLeft,
   Sparkles,
+  ThumbsUp,
+  HelpCircle,
+  ScrollText,
+  ClipboardList,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -71,6 +75,34 @@ export default function Sidebar() {
       icon: MessageSquare,
       active: pathname === "/user",
       gradient: "from-blue-500 to-indigo-600",
+    },
+    {
+      label: "Feedback",
+      href: "/user/feedback",
+      icon: ThumbsUp,
+      active: pathname === "/user/feedback",
+      gradient: "from-amber-500 to-orange-500",
+    },
+    {
+      label: "Information Hub",
+      href: "/user/info",
+      icon: HelpCircle,
+      active: pathname === "/user/info",
+      gradient: "from-cyan-500 to-blue-500",
+    },
+    {
+      label: "Petitions",
+      href: "/user/petitions",
+      icon: ScrollText,
+      active: pathname === "/user/petitions",
+      gradient: "from-rose-500 to-pink-500",
+    },
+    {
+      label: "My History",
+      href: "/user/history",
+      icon: ClipboardList,
+      active: pathname === "/user/history",
+      gradient: "from-violet-500 to-purple-500",
     },
   ];
 

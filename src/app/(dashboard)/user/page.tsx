@@ -3,51 +3,34 @@
 import ComplaintForm from "@/components/forms/ComplaintForm";
 import TaskBar from "@/components/ui/TaskBar";
 import { useState } from "react";
-import { Ticket, Megaphone, Sparkles } from "lucide-react";
+import { Ticket } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function UserDashboard() {
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Welcome Header */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-8 text-white shadow-xl shadow-indigo-500/20">
-        {/* Background decorations */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-16 translate-x-16" />
-        <div className="absolute bottom-0 left-20 w-24 h-24 bg-white/10 rounded-full translate-y-10" />
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
-              <Megaphone className="w-5 h-5" />
-            </div>
-            <h1 className="text-2xl font-bold">VoiceBox</h1>
-          </div>
-          <p className="text-sm text-white/80 max-w-md">
-            Submit and track your complaints. Our AI-powered system analyzes
-            each submission for faster resolution.
-          </p>
-          <div className="flex items-center gap-2 mt-4">
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white/20 rounded-full text-xs font-semibold backdrop-blur-sm">
-              <Sparkles className="w-3 h-3" />
-              AI-Powered Analysis
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white/20 rounded-full text-xs font-semibold backdrop-blur-sm">
-              📧 Email Notifications
-            </span>
-          </div>
-        </div>
-      </div>
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Form */}
-        <div className="lg:col-span-2 space-y-6">
+        <motion.div
+          className="lg:col-span-2 space-y-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <ComplaintForm />
-        </div>
+        </motion.div>
 
         {/* Right Column: Live Tracking */}
-        <div className="space-y-6">
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 shadow-sm">
             <h2 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <div className="p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
@@ -83,7 +66,7 @@ export default function UserDashboard() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db/prisma";
 import { analyzeComplaint } from "@/lib/ai/analyzer";
+import { generateTicketCode } from "@/lib/utils/generateCode";
 
 // POST /api/tickets — Create a new ticket with AI analysis
 export async function POST(req: Request) {
@@ -11,12 +12,16 @@ export async function POST(req: Request) {
     // AI: Analyze the complaint before saving
     const aiAnalysis = await analyzeComplaint(description);
 
+    // Generate unique ticket code
+    const ticketCode = await generateTicketCode("C", "ticket", "ticketCode");
+
     const ticket = await db.ticket.create({
       data: {
+        ticketCode,
         title,
         description,
-        category: category || aiAnalysis.category, // Use AI suggestion if no category provided
-        priority: priority || aiAnalysis.priority,  // Use AI suggestion if no priority provided
+        category: category || aiAnalysis.category,
+        priority: priority || aiAnalysis.priority,
         location: location || undefined,
         imageUrl: imageUrl || undefined,
         latitude: latitude || undefined,

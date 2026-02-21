@@ -53,14 +53,17 @@ model User {
   updatedAt DateTime  @updatedAt
 
   // Relations
-  tickets   Ticket[]
-  messages  Message[]
+  tickets    Ticket[]
+  messages   Message[]
+  feedbacks  Feedback[]
+  petitions  Petition[]
 
   @@map("users")
 }
 
 model Ticket {
   id          Int       @id @default(autoincrement())
+  ticketCode  String?   @unique   // Auto-generated: C00001-C99999
   title       String
   description String    @db.Text
   status      Status    @default(OPEN)
@@ -111,4 +114,40 @@ model Document {
   createdAt DateTime @default(now())
 
   @@map("documents")
+}
+
+model Feedback {
+  id           Int      @id @default(autoincrement())
+  feedbackCode String?  @unique   // Auto-generated: F00001-F99999
+  type         String   // "staff", "facility", "service", "recommendation", "other"
+  target       String?  // Who/what the feedback is about
+  rating    Int?     // 1-5 star rating (optional)
+  comment   String   @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("feedbacks")
+}
+
+model Petition {
+  id           Int      @id @default(autoincrement())
+  petitionCode String?  @unique   // Auto-generated: P00001-P99999
+  title        String
+  description  String   @db.Text
+  category     String?
+  votes       Int      @default(1)
+  voterIds    Json     @default("[]") // Array of user IDs who voted
+  status      String   @default("active") // "active" or "closed"
+  createdAt   DateTime @default(now())
+
+  // Relations
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("petitions")
 }
